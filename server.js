@@ -3,6 +3,8 @@ const http = require('http')
 const socketIo = require('socket.io')
 const jwt = require('jsonwebtoken')
 require('dotenv').config()
+const { PrismaClient } = require('@prisma/client')
+const prisma = new PrismaClient()
 const PORT = process.env.PORT || 5000
 
 const app = express()
@@ -15,6 +17,7 @@ io.on('connection', (socket) => {
     console.log(`Client connected: ${socket.id}`)
 
     const token = socket.handshake.query.token
+    console.log("Logged token: ",token)
     const boardId = socket.handshake.query.board
 
     try{
@@ -30,7 +33,13 @@ io.on('connection', (socket) => {
     if (!clients[boardId]){
         clients[boardId] = new Set()
     }
+    clients[boardId].add(socket)
     console.log(`Client connected to ${boardId}. Total clients on this board: ${clients[boardId].size}`)
+
+    socket.on('fetchNotes', async () => {
+        const notes = await prisma.note.findMany({ where: { boardId } })
+        socket.emit('notesFetched', notes)
+    })
 
     socket.on('message', (message) => {
         console.log('Received message:', message)
@@ -42,10 +51,39 @@ io.on('connection', (socket) => {
         })
     })
 
+    socket.on('createNote', async (noteData) => {
+        console.log('Creating a new note: ', noteData)
+
+        const newNote = await prisma.note.create({
+            data: {
+                content: noteData.content,
+                boardId: boardId
+            }
+        })
+
+        clients[boardId].forEach(client => {
+            client.emit('noteCreated', newNote)
+        })
+    })
+
+    socket.on('updateNote', async (noteData) => {
+        console.log('Updating note:', noteData)
+
+        const updatedNote = await prisma.note.update({
+            where: {id: noteData.noteId},
+            data: {content: noteData.content}
+        })
+
+        clients[boardId].forEach(client => {
+            client.emit('noteUpdated', updatedNote)
+        })
+    })
+
     socket.on('disconnect', () => {
         clients[boardId].delete(socket)
         console.log(`Client disconnected from ${boardId}. Total clients on this board: ${clients[boardId].size}`)
     })
+
 })
 
 server.listen(PORT, () => {
