@@ -2,14 +2,28 @@ const express = require('express')
 const http = require('http')
 const socketIo = require('socket.io')
 const jwt = require('jsonwebtoken')
+const cors = require('cors')
 require('dotenv').config()
 const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const PORT = process.env.PORT || 5000
 
+const FRONTEND_URL = 'http://127.0.0.1:5500'
+
+
 const app = express()
 const server = http.createServer(app)
-const io = socketIo(server)
+const io = socketIo(server, {
+    cors: {
+        origin: FRONTEND_URL,
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        }
+})
+app.use(cors({
+    origin: FRONTEND_URL,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+}))
 
 const clients = {}
 

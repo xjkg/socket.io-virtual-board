@@ -12,6 +12,7 @@ model User {
   name      String  @unique
   password  String
   boards    Board[]
+  otherBoards String[]
 }
 
 model Board {
@@ -20,11 +21,12 @@ model Board {
   ownerId   String   @db.ObjectId
   owner     User     @relation(fields: [ownerId], references: [id])
   notes     Note[]
+  otherUsers  String[]
 }
 
 model Note {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   content   String   
   boardId   String   @db.ObjectId 
-  board     Board    @relation(fields: [boardId], references: [id])
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
 }
