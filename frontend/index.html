@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes Application</title>
+    <!-- Include Socket.IO client -->
+    <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+    <div id="login-container" class="login-container">
+    <h3>Log in</h3>
+    <input id="name" type="text" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+    <button id="login-btn">Login</button>
+    <p>Don't have an account? <a id="show-register">Register here</a></p>
+    <p id="message"></p>
+    </div>
+
+    <div id="register-container" class="register-container">
+    <h3>Register</h3>
+    <input id="registername" type="text" placeholder="Username">
+    <input id="registerpass" type="password" placeholder="Password">
+    <input id="passwordcheck" type="password" placeholder="Re-enter password">
+    <button id="register-btn">Register</button>
+    <p>Already have an account? <a id="show-login">Login here</a></p>
+    <p id="regmessage"></p>
+    </div>
+    
+    <div id="board-container" class="board-container">
+    <select id="board-select">
+        <option disabled selected hidden>Select a board</option>
+    </select>
+    <button id="select-board">Select</button>
+    <input id="board-title" placeholder="New Board Title">
+    <button id="create-board">Create New</button>
+    <input id="edited-title" placeholder="Edit Title">
+    <button id="board-edit-title">Edit Title</button>
+    <input id="invited-user" placeholder="Who do you want to invite?"> 
+    <button id="invite-user">Invite User</button>
+    <button id="delete-board">Delete Selected</button>
+    <p id="board-create-msg"></p>
+    <p id="board-update-msg"></p>
+    <p id="invite-msg"></p>
+    <p id="delete-msg"></p>
+    </div>
+
+    <div id="notes-container" style="display:none;">
+        <h2>Notes</h2>
+        <p id="note-msg"></p>
+        <div id="notes"></div>
+    </div>
+<script src="script.js"></script>
+</body>
+</html>
