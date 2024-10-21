@@ -132,6 +132,11 @@ document.getElementById('create-board').addEventListener('click', async () => {
 
   const title = document.getElementById('board-title').value;
 
+  if(title == ""){
+    document.getElementById('delete-msg').innerText = "Please enter a title"
+    throw new Error("Title cannot be empty")
+  }
+
   try {
         const response = await fetch('http://localhost:8080/boards/', {
             method: 'POST',
@@ -269,12 +274,18 @@ function displayNotes(notes) {
     notes.forEach(note => {
         const noteElement = document.createElement('div');
         noteElement.innerHTML = `
-            <div>
-                <strong>Note:</strong> <span class="note-content" data-id="${note.id}">${note.content}</span>
+            <div id="note" class="note">
+                <div id="widget_content">
+                <span class="note-content" data-id="${note.id}">${note.content}</span>
                 <input type="text" class="note-input" placeholder="Edit note" />
-            </div>
+                <button id="${note.id}">Delete Note<button/>
+                </div>
+                </div>
         `;
         notesContainer.appendChild(noteElement);
+        document.getElementById(`${note.id}`).addEventListener('click', () => {
+            deleteNote();
+        })
     });
     document.getElementById('notes-container').style.display = 'block';
 
@@ -286,6 +297,63 @@ function displayNotes(notes) {
             sendNoteUpdate(noteId, content);
         });
     });
+}
+
+document.getElementById('create-note').addEventListener('click', async () => {
+    const content = " "
+
+    if (!content) {
+        document.getElementById('note-msg').innerText = 'Please enter note content.';
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:8080/boards/${boardId}/notes`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({ content }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to create note');
+        }
+
+        const data = await response.json();
+        document.getElementById('note-msg').innerText = data.message || 'Note created successfully';
+        await fetchNotes(); // Refresh the notes list
+
+    } catch (error) {
+        console.error('Error:', error.message);
+        document.getElementById('note-msg').innerText = error.message || 'An error occurred';
+    }
+});
+
+async function deleteNote() {
+    const noteContent = document.querySelector('.note-content');
+    const noteId = noteContent.getAttribute('data-id');
+
+    try {
+        const response = await fetch(`http://localhost:8080/boards/${boardId}/notes/${noteId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.msg || 'Failed to delete note');
+        }
+
+        fetchNotes();
+    } catch (error) {
+        console.error('Error deleting note:', error.message);
+        document.getElementById('message').innerText = error.message || 'An error occurred';
+    }
 }
 
 function setupSocket() {

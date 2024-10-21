@@ -5,7 +5,6 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notes Application</title>
-    <!-- Include Socket.IO client -->
     <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
     <link rel="stylesheet" href="styles.css" />
 </head>
@@ -34,12 +33,12 @@
         <option disabled selected hidden>Select a board</option>
     </select>
     <button id="select-board">Select</button>
-    <input id="board-title" placeholder="New Board Title">
-    <button id="create-board">Create New</button>
-    <input id="edited-title" placeholder="Edit Title">
+    <button id="create-board">Create New Board</button>
+    <input id="board-title" class="board-title" placeholder="New Board Title">
     <button id="board-edit-title">Edit Title</button>
-    <input id="invited-user" placeholder="Who do you want to invite?"> 
+    <input id="edited-title" class="edited-title" placeholder="Edit Title">
     <button id="invite-user">Invite User</button>
+    <input id="invited-user" class="invited-user" placeholder="Who do you want to invite?"> 
     <button id="delete-board">Delete Selected</button>
     <p id="board-create-msg"></p>
     <p id="board-update-msg"></p>
@@ -49,6 +48,7 @@
 
     <div id="notes-container" style="display:none;">
         <h2>Notes</h2>
+        <button id="create-note">Create New Note</button>
         <p id="note-msg"></p>
         <div id="notes"></div>
     </div>

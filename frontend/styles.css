@@ -46,6 +46,21 @@ button {
   cursor: pointer;
 }
 
+.note {
+  border: 1px solid #000000;
+  margin: 10px;
+  border-radius: 25px;
+  padding: 20px;
+  width: wrap;
+  float: left;
+}
+
+
+.notes-container {
+  display: inline-block;
+  margin: 0 auto;
+}
+
 a {
   color: blue;
   cursor: pointer;
