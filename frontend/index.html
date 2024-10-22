@@ -29,19 +29,21 @@
     </div>
     
     <div id="board-container" class="board-container">
-    <select id="board-select">
+    <select id="board-select" class="board-selector">
         <option disabled selected hidden>Select a board</option>
     </select>
-    <button id="select-board">Select</button>
-    <button id="create-board">Create New Board</button>
+    <button id="board-creator-toggle">Create</button>
+    <div id="board-creator">
     <input id="board-title" class="board-title" placeholder="New Board Title">
-    <button id="board-edit-title">Edit Title</button>
-    <input id="edited-title" class="edited-title" placeholder="Edit Title">
+    <button id="create-board">Create New Board</button>
+    </div>
+    <button id="board-inviter-toggle">Invite</button>
+    <div id="board-inviter">
+    <input id="invited-user" class="invited-user" placeholder="Who do you want to invite?">
     <button id="invite-user">Invite User</button>
-    <input id="invited-user" class="invited-user" placeholder="Who do you want to invite?"> 
+    </div>
     <button id="delete-board">Delete Selected</button>
     <p id="board-create-msg"></p>
-    <p id="board-update-msg"></p>
     <p id="invite-msg"></p>
     <p id="delete-msg"></p>
     </div>

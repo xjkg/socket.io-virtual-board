@@ -5,6 +5,8 @@ let socket;
 const loginContainer = document.getElementById('login-container');
 const registerContainer = document.getElementById('register-container');
 const boardContainer = document.getElementById('board-container');
+const boardCreator = document.getElementById('board-creator');
+const boardInviter = document.getElementById('board-inviter');
 
 document.getElementById('show-register').addEventListener('click', function() {
     loginContainer.style.display = 'none';
@@ -14,6 +16,24 @@ document.getElementById('show-register').addEventListener('click', function() {
 document.getElementById('show-login').addEventListener('click', function() {
     loginContainer.style.display = 'block';
     registerContainer.style.display = 'none';
+});
+
+document.getElementById('board-creator-toggle').addEventListener('click', function() {
+    
+    if (boardCreator.style.display == 'none') {
+        boardCreator.style.display = 'block';
+    } else {
+        boardCreator.style.display = 'none';
+    }
+});
+
+document.getElementById('board-inviter-toggle').addEventListener('click', function() {
+    
+    if (boardInviter.style.display == 'none') {
+        boardInviter.style.display = 'block';
+    } else {
+        boardInviter.style.display = 'none';
+    }
 });
 
 document.getElementById('register-btn').addEventListener('click', async () => {
@@ -74,6 +94,8 @@ document.getElementById('login-btn').addEventListener('click', async () => {
         localStorage.setItem("notesJWT", token);
         loginContainer.style.display = 'none';
         boardContainer.style.display = 'block';
+        boardCreator.style.display = 'none';
+        boardInviter.style.display = 'none';
 
         await fetchBoards();
     } catch (error) {
@@ -104,27 +126,18 @@ async function fetchBoards() {
 
 function populateBoardSelect(boards) {
     const boardSelect = document.getElementById('board-select');
+    boardSelect.innerHTML = '';
     boards.forEach(board => {
         const option = document.createElement('option');
         option.value = board.id;
         option.text = board.title;
         boardSelect.appendChild(option);
     });
-    document.getElementById('select-board').style.display = 'inline-block';
 
     boardSelect.addEventListener('change', (event) => {
         boardId = event.target.value;
         fetchNotes();
         setupSocket();
-    });
-
-    document.getElementById('select-board').addEventListener('click', () => {
-        if (boards.length > 0) {
-            boardId = boards[0].id;
-            boardSelect.value = boardId;
-            fetchNotes();
-            setupSocket();
-        }
     });
 }
 //skapa ny board
@@ -150,17 +163,21 @@ document.getElementById('create-board').addEventListener('click', async () => {
         if (!response.ok) {
             throw new Error('Board creation failed');
         }
-
+        /*
         const data = await response.json();
+        document.getElementById('board-create-msg').innerText = "";
         document.getElementById('board-create-msg').innerText = data.message || 'Board created';
-        await fetchBoards();
+        
+        */
+       alert('Board created!');
+       await fetchBoards();
 
     } catch (error) {
         console.error('Error:', error.message);
         document.getElementById('board-create-msg').innerText = error.message || 'An error occurred';
     }
 });
-//ändra board titel
+/*//ändra board titel
 document.getElementById('board-edit-title').addEventListener('click', async () => {
     const newTitle = document.getElementById('edited-title').value;
 
@@ -192,7 +209,7 @@ document.getElementById('board-edit-title').addEventListener('click', async () =
         console.error('Error:', error.message);
         document.getElementById('board-update-msg').innerText = error.message || 'An error occurred';
     }
-});
+});*/
 
 //invite user
 document.getElementById('invite-user').addEventListener('click', async () => {
@@ -239,7 +256,8 @@ document.getElementById('delete-board').addEventListener('click', async () => {
         }
 
         const data = await response.json();
-        document.getElementById('delete-msg').innerText = data.message || 'Board deleted';
+        //document.getElementById('delete-msg').innerText = data.message || 'Board deleted';
+        alert('Board deleted!');
         await fetchBoards();
 
     } catch (error) {
@@ -267,7 +285,7 @@ async function fetchNotes() {
         document.getElementById('message').innerText = error.message || 'An error occurred while fetching notes';
     }
 }
-
+/*
 function displayNotes(notes) {
     const notesContainer = document.getElementById('notes');
     notesContainer.innerHTML = '';
@@ -277,8 +295,8 @@ function displayNotes(notes) {
             <div id="note" class="note">
                 <div id="widget_content">
                 <span class="note-content" data-id="${note.id}">${note.content}</span>
-                <input type="text" class="note-input" placeholder="Edit note" />
-                <button id="${note.id}">Delete Note<button/>
+                <textarea type="text" class="note-input" placeholder="Edit note"></textarea>
+                <button id="${note.id}">Delete Note</button>
                 </div>
                 </div>
         `;
@@ -293,6 +311,41 @@ function displayNotes(notes) {
     noteInputs.forEach(input => {
         input.addEventListener('input', (event) => {
             const noteId = event.target.closest('div').querySelector('.note-content').dataset.id;
+            const content = event.target.value;
+            sendNoteUpdate(noteId, content);
+        });
+    });
+}
+*/
+
+function displayNotes(notes) {
+    const notesContainer = document.getElementById('notes');
+    notesContainer.innerHTML = '';
+
+    notes.forEach(note => {
+        const noteElement = document.createElement('div');
+        noteElement.innerHTML = `
+            <div id="note" class="note">
+                <div id="widget_content">
+                    <textarea type="text" class="note-input" data-id="${note.id}">${note.content}</textarea>
+                    <button id="delete-${note.id}">Delete Note</button>
+                </div>
+            </div>
+        `;
+
+        notesContainer.appendChild(noteElement);
+
+        document.getElementById(`delete-${note.id}`).addEventListener('click', () => {
+            deleteNote(note.id);
+        });
+    });
+
+    document.getElementById('notes-container').style.display = 'block';
+
+    const noteInputs = document.querySelectorAll('.note-input');
+    noteInputs.forEach(input => {
+        input.addEventListener('input', (event) => {
+            const noteId = event.target.dataset.id;
             const content = event.target.value;
             sendNoteUpdate(noteId, content);
         });
@@ -323,15 +376,15 @@ document.getElementById('create-note').addEventListener('click', async () => {
         }
 
         const data = await response.json();
-        document.getElementById('note-msg').innerText = data.message || 'Note created successfully';
-        await fetchNotes(); // Refresh the notes list
+        //document.getElementById('note-msg').innerText = data.message || 'Note created successfully';
+        await fetchNotes();
 
     } catch (error) {
         console.error('Error:', error.message);
         document.getElementById('note-msg').innerText = error.message || 'An error occurred';
     }
 });
-
+/*
 async function deleteNote() {
     const noteContent = document.querySelector('.note-content');
     const noteId = noteContent.getAttribute('data-id');
@@ -350,6 +403,28 @@ async function deleteNote() {
         }
 
         fetchNotes();
+    } catch (error) {
+        console.error('Error deleting note:', error.message);
+        document.getElementById('message').innerText = error.message || 'An error occurred';
+    }
+}
+*/
+
+async function deleteNote(noteId) {
+    try {
+        const response = await fetch(`http://localhost:8080/boards/${boardId}/notes/${noteId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.msg || 'Failed to delete note');
+        }
+
+        fetchNotes(); 
     } catch (error) {
         console.error('Error deleting note:', error.message);
         document.getElementById('message').innerText = error.message || 'An error occurred';
