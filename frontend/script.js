@@ -1,6 +1,10 @@
 let token;
 let boardId;
 let socket;
+//const apiURL = "https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net"
+const apiURL = "http://localhost:8080"
+const wssURL = "http://localhost:5000/"
+//const wssURL = "wss://wom-projekt1-ws.azurewebsites.net/"
 
 const loginContainer = document.getElementById('login-container');
 const registerContainer = document.getElementById('register-container');
@@ -51,7 +55,7 @@ document.getElementById('register-btn').addEventListener('click', async () => {
     }
 
     try {
-        const response = await fetch('https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/users/register', {
+        const response = await fetch(`${apiURL}/users/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -81,7 +85,7 @@ document.getElementById('login-btn').addEventListener('click', async () => {
     const password = document.getElementById('password').value;
 
     try {
-        const response = await fetch('https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/users/login', {
+        const response = await fetch(`${apiURL}/users/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -112,7 +116,7 @@ document.getElementById('login-btn').addEventListener('click', async () => {
 
 async function fetchBoards() {
     try {
-        const response = await fetch('https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards', {
+        const response = await fetch(`${apiURL}/boards`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
             },
@@ -142,12 +146,15 @@ function populateBoardSelect(boards) {
 
     if (boardSelect.options.length > 0) {
         boardId = boardSelect.value;
+        console.log('Connecting to board:', boardId);
         fetchNotes();
         setupSocket();
     }
 
     boardSelect.addEventListener('change', (event) => {
+        
         boardId = event.target.value;
+        console.log('Connecting to board:', boardId);
         fetchNotes();
         setupSocket();
     });
@@ -163,7 +170,7 @@ document.getElementById('create-board').addEventListener('click', async () => {
   }
 
   try {
-        const response = await fetch('https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards/', {
+        const response = await fetch(`${apiURL}/boards/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -175,12 +182,7 @@ document.getElementById('create-board').addEventListener('click', async () => {
         if (!response.ok) {
             throw new Error('Board creation failed');
         }
-        /*
-        const data = await response.json();
-        document.getElementById('board-create-msg').innerText = "";
-        document.getElementById('board-create-msg').innerText = data.message || 'Board created';
-        
-        */
+
        alert('Board created!');
        await fetchBoards();
 
@@ -189,46 +191,14 @@ document.getElementById('create-board').addEventListener('click', async () => {
         document.getElementById('board-create-msg').innerText = error.message || 'An error occurred';
     }
 });
-/*//ändra board titel
-document.getElementById('board-edit-title').addEventListener('click', async () => {
-    const newTitle = document.getElementById('edited-title').value;
 
-    if (!newTitle) {
-        document.getElementById('update-msg').innerText = 'Please enter a new title.';
-        return;
-    }
-
-    try {
-        const response = await fetch(`https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards/${boardId}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            },
-            body: JSON.stringify({ title: newTitle }),
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.msg || 'Failed to update board title');
-        }
-
-        const data = await response.json();
-        document.getElementById('board-update-msg').innerText = data.msg || 'Board title updated successfully';
-        await fetchBoards();
-
-    } catch (error) {
-        console.error('Error:', error.message);
-        document.getElementById('board-update-msg').innerText = error.message || 'An error occurred';
-    }
-});*/
 
 //invite user
 document.getElementById('invite-user').addEventListener('click', async () => {
   const username = document.getElementById('invited-user').value;
 
   try {
-      const response = await fetch(`https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards/${boardId}/invite`, {
+      const response = await fetch(`${apiURL}/boards/${boardId}/invite`, {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
@@ -255,7 +225,7 @@ document.getElementById('invite-user').addEventListener('click', async () => {
 document.getElementById('delete-board').addEventListener('click', async () => {
 
   try {
-        const response = await fetch(`https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards/${boardId}`, {
+        const response = await fetch(`${apiURL}/boards/${boardId}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -268,7 +238,6 @@ document.getElementById('delete-board').addEventListener('click', async () => {
         }
 
         const data = await response.json();
-        //document.getElementById('delete-msg').innerText = data.message || 'Board deleted';
         alert('Board deleted!');
         await fetchBoards();
 
@@ -280,7 +249,7 @@ document.getElementById('delete-board').addEventListener('click', async () => {
 
 async function fetchNotes() {
     try {
-        const response = await fetch(`https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards/${boardId}/notes`, {
+        const response = await fetch(`${apiURL}/boards/${boardId}/notes`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
             },
@@ -298,38 +267,6 @@ async function fetchNotes() {
         document.getElementById('message').innerText = error.message || 'An error occurred while fetching notes';
     }
 }
-/*
-function displayNotes(notes) {
-    const notesContainer = document.getElementById('notes');
-    notesContainer.innerHTML = '';
-    notes.forEach(note => {
-        const noteElement = document.createElement('div');
-        noteElement.innerHTML = `
-            <div id="note" class="note">
-                <div id="widget_content">
-                <span class="note-content" data-id="${note.id}">${note.content}</span>
-                <textarea type="text" class="note-input" placeholder="Edit note"></textarea>
-                <button id="${note.id}">Delete Note</button>
-                </div>
-                </div>
-        `;
-        notesContainer.appendChild(noteElement);
-        document.getElementById(`${note.id}`).addEventListener('click', () => {
-            deleteNote();
-        })
-    });
-    document.getElementById('notes-container').style.display = 'block';
-
-    const noteInputs = document.querySelectorAll('.note-input');
-    noteInputs.forEach(input => {
-        input.addEventListener('input', (event) => {
-            const noteId = event.target.closest('div').querySelector('.note-content').dataset.id;
-            const content = event.target.value;
-            sendNoteUpdate(noteId, content);
-        });
-    });
-}
-*/
 
 function displayNotes(notes) {
     const notesContainer = document.getElementById('notes');
@@ -338,7 +275,7 @@ function displayNotes(notes) {
     notes.forEach(note => {
         const noteElement = document.createElement('div');
         noteElement.innerHTML = `
-            <div id="note-${note.id}" class="note" style="position: absolute; left: ${note.x}px; top: ${note.y}px; width: ${note.width}px; height: ${note.height}px;">
+            <div id="note-${note.id}" class="note" >
                 <div class="note-header"></div>
                 <textarea type="text" class="note-input" data-id="${note.id}">${note.content}</textarea>
                 <button id="delete-${note.id}">X</button>
@@ -347,82 +284,27 @@ function displayNotes(notes) {
 
         notesContainer.appendChild(noteElement);
 
-        $(noteElement).draggable({
-            handle: ".note-header",
-            stop: function(event, ui) {
-                const x = ui.position.left;
-                const y = ui.position.top;
-            }
-        }).resizable({
-            stop: function(event, ui) {
-                const newSize = { width: ui.size.width, height: ui.size.height };
-            }
-        });
+        $(noteElement).draggable();
 
         document.getElementById(`delete-${note.id}`).addEventListener('click', () => {
-            deleteNote(note.id);
+            socket.emit('deleteNote', note.id)
         });
     });
 
     document.getElementById('notes-container').style.display = 'block';
 
     const noteInputs = document.querySelectorAll('.note-input');
+    const debouncedSendNoteUpdate = debounce(sendNoteUpdate, 300);
+
     noteInputs.forEach(input => {
         input.addEventListener('input', (event) => {
             const noteId = event.target.dataset.id;
             const content = event.target.value;
-            sendNoteUpdate(noteId, content);
+            debouncedSendNoteUpdate(noteId, content);
         });
     });
 }
-/*
-function saveNotePosition(noteId, x, y) {
-    fetch(`https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards/${boardId}/notes/${noteId}/position`, {
-        method: 'PUT',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ x, y }),
-    })
-    .then(response => {
-        console.log('Response:', response);
-        if (!response.ok) {
-            return response.text().then(err => {
-                throw new Error(err || 'Failed to save note position');
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Note position saved successfully:', data);
-    })
-    .catch(error => {
-        console.error('Error saving note position:', error.message);
-        document.getElementById('message').innerText = 'Error saving note position: ' + error.message;
-    });
-} 
 
-async function saveNoteSize(noteId, size) {
-    try {
-        const response = await fetch(`https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards/${boardId}/notes/${noteId}/size`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,
-            },
-            body: JSON.stringify(size),
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to save note size');
-        }
-
-        console.log('Note size saved successfully');
-    } catch (error) {
-        console.error('Error saving note size:', error.message);
-    }
-} */
 
 document.getElementById('create-note').addEventListener('click', async () => {
     const content = " "
@@ -433,7 +315,7 @@ document.getElementById('create-note').addEventListener('click', async () => {
     }
 
     try {
-        const response = await fetch(`https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards/${boardId}/notes`, {
+        const response = await fetch(`${apiURL}/boards/${boardId}/notes`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -448,7 +330,6 @@ document.getElementById('create-note').addEventListener('click', async () => {
         }
 
         const data = await response.json();
-        //document.getElementById('note-msg').innerText = data.message || 'Note created successfully';
         await fetchNotes();
 
     } catch (error) {
@@ -456,94 +337,76 @@ document.getElementById('create-note').addEventListener('click', async () => {
         document.getElementById('note-msg').innerText = error.message || 'An error occurred';
     }
 });
-/*
-async function deleteNote() {
-    const noteContent = document.querySelector('.note-content');
-    const noteId = noteContent.getAttribute('data-id');
-
-    try {
-        const response = await fetch(`https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards/${boardId}/notes/${noteId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-            },
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.msg || 'Failed to delete note');
-        }
-
-        fetchNotes();
-    } catch (error) {
-        console.error('Error deleting note:', error.message);
-        document.getElementById('message').innerText = error.message || 'An error occurred';
-    }
-}
-*/
-
-
-
-async function deleteNote(noteId) {
-    try {
-        const response = await fetch(`https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards/${boardId}/notes/${noteId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-            },
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.msg || 'Failed to delete note');
-        }
-
-        fetchNotes(); 
-    } catch (error) {
-        console.error('Error deleting note:', error.message);
-        document.getElementById('message').innerText = error.message || 'An error occurred';
-    }
-}
 
 function setupSocket() {
-    if (!socket) {
-        socket = io('wss://wom-projekt1-ws.azurewebsites.net/', {
-            query: { board: boardId, token: token }
-        });
-
-        socket.on('connect', () => {
-            console.log('Connected to Socket.IO server');
-            socket.emit('fetchNotes');
-        });
-
-        socket.on('noteUpdated', (updatedNote) => {
-            const noteElement = document.querySelector(`.note-content[data-id="${updatedNote.id}"]`);
-            if (noteElement) {
-                noteElement.textContent = updatedNote.content;
-            }
-        });
-
-        socket.on('notesFetched', (notes) => {
-            displayNotes(notes);
-        });
-
-        socket.on('error', (error) => {
-            console.error('Socket.IO error observed:', error);
-            document.getElementById('message').innerText = 'Socket.IO connection failed. Please try again later.';
-        });
-
-        socket.on('disconnect', (reason) => {
-            console.log('Socket.IO connection disconnected:', reason);
-            document.getElementById('message').innerText = 'Socket.IO connection disconnected.';
-        });
+    //safe socket creation som fungerar med live collab
+    if (socket) {
+        socket.disconnect(); 
+        socket = null; 
     }
+
+    socket = io(`${wssURL}`, {
+        query: { board: boardId, token: token }
+    });
+
+    socket.on('connect', () => {
+        console.log('Connected to Socket.IO server');
+        socket.emit('fetchNotes');
+    });
+
+
+    socket.on('noteUpdated', (updatedNote) => {
+        const noteElement = document.querySelector(`.note-input[data-id="${updatedNote.id}"]`);
+        if (noteElement) {
+            noteElement.textContent = updatedNote.content; 
+        }
+    });
+
+    socket.on('noteDeleted', (noteId) => {
+        console.log(`Note with ID ${noteId} was deleted by another user.`);
+        
+        // Remove the note from the UI
+        const noteElement = document.getElementById(`note-${noteId}`);
+        if (noteElement) {
+            noteElement.remove(); // Remove the note element from the DOM
+        }
+    });
+    
+
+    socket.on('notesFetched', (notes) => {
+        displayNotes(notes);
+    });
+
+    socket.on('error', (error) => {
+        console.error('Socket.IO error:', error);
+        document.getElementById('message').innerText = 'Socket.IO connection failed. Please try again later.';
+    });
+
+    socket.on('disconnect', (reason) => {
+        console.log('Socket.IO disconnected:', reason);
+        document.getElementById('message').innerText = 'Socket.IO connection disconnected.';
+        socket = null; 
+    });
 }
 
 function sendNoteUpdate(noteId, content) {
     if (socket && socket.connected) {
         socket.emit('updateNote', { noteId, content });
+
     } else {
         console.error('Socket.IO is not connected. Cannot send message.');
         document.getElementById('message').innerText = 'Cannot send message: Socket.IO is not connected.';
     }
+}
+//chatgpt lösning för server crash när man skriver för snabbt
+function debounce(func, delay) {
+    let timeoutId;
+    return function (...args) {
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+        }
+        timeoutId = setTimeout(() => {
+            func.apply(this, args);
+        }, delay);
+    };
 }
