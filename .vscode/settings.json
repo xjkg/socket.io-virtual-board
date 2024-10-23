@@ -1,0 +1,8 @@
+{
+    "appService.zipIgnorePattern": [
+        "node_modules{,/**}",
+        ".vscode{,/**}"
+    ],
+    "appService.defaultWebAppToDeploy": "/subscriptions/45198b7d-5894-4a42-ac1a-3885ce787a76/resourceGroups/wom-projekt1-ws_group/providers/Microsoft.Web/sites/wom-projekt1-ws",
+    "appService.deploySubpath": "."
+}

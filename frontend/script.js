@@ -501,7 +501,7 @@ async function deleteNote(noteId) {
 
 function setupSocket() {
     if (!socket) {
-        socket = io('http://localhost:5000', {
+        socket = io('wss://wom-projekt1-ws.azurewebsites.net/', {
             query: { board: boardId, token: token }
         });
 

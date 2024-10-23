@@ -1,4 +1,5 @@
 const express = require('express')
+const path = require('path');
 const http = require('http')
 const socketIo = require('socket.io')
 const jwt = require('jsonwebtoken')
@@ -8,10 +9,12 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const PORT = process.env.PORT || 5000
 
-const FRONTEND_URL = 'http://127.0.0.1:5500'
+const FRONTEND_URL = 'https://wom-projekt1-ws.azurewebsites.net'
+
 
 
 const app = express()
+app.use(express.static(path.join(__dirname, 'frontend')));
 const server = http.createServer(app)
 const io = socketIo(server, {
     cors: {
