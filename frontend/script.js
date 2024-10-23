@@ -294,6 +294,7 @@ function displayNotes(notes) {
 
         document.getElementById(`delete-${note.id}`).addEventListener('click', () => {
             socket.emit('deleteNote', note.id)
+            socket.emit('deleteNote', note.id)
         });
     });
 
@@ -306,6 +307,7 @@ function displayNotes(notes) {
         input.addEventListener('input', (event) => {
             const noteId = event.target.dataset.id;
             const content = event.target.value;
+            debouncedSendNoteUpdate(noteId, content);
             debouncedSendNoteUpdate(noteId, content);
         });
     });
