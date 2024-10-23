@@ -1,10 +1,10 @@
 let token;
 let boardId;
 let socket;
-//const apiURL = "https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net"
-const apiURL = "http://localhost:8080"
-const wssURL = "http://localhost:5000/"
-//const wssURL = "wss://wom-projekt1-ws.azurewebsites.net/"
+const apiURL = "https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net"
+//const apiURL = "http://localhost:8080"
+//const wssURL = "http://localhost:5000/"
+const wssURL = "wss://wom-projekt1-ws.azurewebsites.net/"
 
 const loginContainer = document.getElementById('login-container');
 const registerContainer = document.getElementById('register-container');

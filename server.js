@@ -9,8 +9,8 @@ const { PrismaClient } = require('@prisma/client')
 const prisma = new PrismaClient()
 const PORT = process.env.PORT || 5000
 
-//const FRONTEND_URL = 'https://wom-projekt1-ws.azurewebsites.net'
-const FRONTEND_URL = 'http://127.0.0.1:5500'
+const FRONTEND_URL = 'https://wom-projekt1-ws.azurewebsites.net'
+//const FRONTEND_URL = 'http://127.0.0.1:5500'
 
 
 
