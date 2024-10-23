@@ -29,8 +29,4 @@ model Note {
   content   String   
   boardId   String   @db.ObjectId 
   board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
-  width     Float
-  height    Float
-  x         Float
-  y         Float
 }
