@@ -140,6 +140,12 @@ function populateBoardSelect(boards) {
         boardSelect.appendChild(option);
     });
 
+    if (boardSelect.options.length > 0) {
+        boardId = boardSelect.value;
+        fetchNotes();
+        setupSocket();
+    }
+
     boardSelect.addEventListener('change', (event) => {
         boardId = event.target.value;
         fetchNotes();
