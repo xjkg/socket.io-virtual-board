@@ -7,6 +7,8 @@
     <title>Notes Application</title>
     <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"></script>
     <link rel="stylesheet" href="styles.css" />
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 </head>
 <body>
     <div id="login-container" class="login-container">
@@ -28,28 +30,34 @@
     <p id="regmessage"></p>
     </div>
     
-    <div id="board-container" class="board-container">
-    <select id="board-select" class="board-selector">
-        <option disabled selected hidden>Select a board</option>
-    </select>
-    <button id="board-creator-toggle">Create</button>
-    <div id="board-creator">
-    <input id="board-title" class="board-title" placeholder="New Board Title">
-    <button id="create-board">Create New Board</button>
-    </div>
-    <button id="board-inviter-toggle">Invite</button>
+    <nav id="boards-navbar">
+        <div class="navbar">
+            <h2>My Boards</h2>
+            <select id="board-select">
+                <option value="">Select a board</option>
+            </select>
+            <button id="board-creator-toggle">Create Board</button>
+            <button id="board-inviter-toggle">Invite User</button>
+            <button id="delete-board">Delete Board</button>
+            
+        </div>
+    </nav>
+
+    <div id="board-container" style="display: none;">
+        <div id="board-creator" style="display: none;">
+            <input id="board-title" class="board-title" placeholder="New Board Title">
+            <button id="create-board">Create New Board</button>
+        </div>
     <div id="board-inviter">
-    <input id="invited-user" class="invited-user" placeholder="Who do you want to invite?">
-    <button id="invite-user">Invite User</button>
+        <input id="invited-user" class="invited-user" placeholder="Who do you want to invite?">
+        <button id="invite-user">Invite User</button>
     </div>
-    <button id="delete-board">Delete Selected</button>
     <p id="board-create-msg"></p>
     <p id="invite-msg"></p>
     <p id="delete-msg"></p>
     </div>
 
     <div id="notes-container" style="display:none;">
-        <h2>Notes</h2>
         <button id="create-note">Create New Note</button>
         <p id="note-msg"></p>
         <div id="notes"></div>

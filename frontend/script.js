@@ -7,6 +7,11 @@ const registerContainer = document.getElementById('register-container');
 const boardContainer = document.getElementById('board-container');
 const boardCreator = document.getElementById('board-creator');
 const boardInviter = document.getElementById('board-inviter');
+const boardsNavbar = document.getElementById('boards-navbar');
+
+
+boardsNavbar.style.display = 'none';
+
 
 document.getElementById('show-register').addEventListener('click', function() {
     loginContainer.style.display = 'none';
@@ -46,7 +51,7 @@ document.getElementById('register-btn').addEventListener('click', async () => {
     }
 
     try {
-        const response = await fetch('http://localhost:8080/users/register', {
+        const response = await fetch('https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/users/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -76,7 +81,7 @@ document.getElementById('login-btn').addEventListener('click', async () => {
     const password = document.getElementById('password').value;
 
     try {
-        const response = await fetch('http://localhost:8080/users/login', {
+        const response = await fetch('https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/users/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -96,6 +101,7 @@ document.getElementById('login-btn').addEventListener('click', async () => {
         boardContainer.style.display = 'block';
         boardCreator.style.display = 'none';
         boardInviter.style.display = 'none';
+        boardsNavbar.style.display = 'block';
 
         await fetchBoards();
     } catch (error) {
@@ -106,7 +112,7 @@ document.getElementById('login-btn').addEventListener('click', async () => {
 
 async function fetchBoards() {
     try {
-        const response = await fetch('http://localhost:8080/boards', {
+        const response = await fetch('https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards', {
             headers: {
                 'Authorization': `Bearer ${token}`,
             },
@@ -151,7 +157,7 @@ document.getElementById('create-board').addEventListener('click', async () => {
   }
 
   try {
-        const response = await fetch('http://localhost:8080/boards/', {
+        const response = await fetch('https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -187,7 +193,7 @@ document.getElementById('board-edit-title').addEventListener('click', async () =
     }
 
     try {
-        const response = await fetch(`http://localhost:8080/boards/${boardId}`, {
+        const response = await fetch(`https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards/${boardId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -216,7 +222,7 @@ document.getElementById('invite-user').addEventListener('click', async () => {
   const username = document.getElementById('invited-user').value;
 
   try {
-      const response = await fetch(`http://localhost:8080/boards/${boardId}/invite`, {
+      const response = await fetch(`https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards/${boardId}/invite`, {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
@@ -243,7 +249,7 @@ document.getElementById('invite-user').addEventListener('click', async () => {
 document.getElementById('delete-board').addEventListener('click', async () => {
 
   try {
-        const response = await fetch(`http://localhost:8080/boards/${boardId}`, {
+        const response = await fetch(`https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards/${boardId}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
@@ -268,7 +274,7 @@ document.getElementById('delete-board').addEventListener('click', async () => {
 
 async function fetchNotes() {
     try {
-        const response = await fetch(`http://localhost:8080/boards/${boardId}/notes`, {
+        const response = await fetch(`https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards/${boardId}/notes`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
             },
@@ -279,6 +285,7 @@ async function fetchNotes() {
         }
 
         const data = await response.json();
+        console.log('Fetched notes:', data.notes);
         displayNotes(data.notes);
     } catch (error) {
         console.error('Error:', error.message);
@@ -325,15 +332,26 @@ function displayNotes(notes) {
     notes.forEach(note => {
         const noteElement = document.createElement('div');
         noteElement.innerHTML = `
-            <div id="note" class="note">
-                <div id="widget_content">
-                    <textarea type="text" class="note-input" data-id="${note.id}">${note.content}</textarea>
-                    <button id="delete-${note.id}">Delete Note</button>
-                </div>
+            <div id="note-${note.id}" class="note" style="position: absolute; left: ${note.x}px; top: ${note.y}px; width: ${note.width}px; height: ${note.height}px;">
+                <div class="note-header"></div>
+                <textarea type="text" class="note-input" data-id="${note.id}">${note.content}</textarea>
+                <button id="delete-${note.id}">X</button>
             </div>
         `;
 
         notesContainer.appendChild(noteElement);
+
+        $(noteElement).draggable({
+            handle: ".note-header",
+            stop: function(event, ui) {
+                const x = ui.position.left;
+                const y = ui.position.top;
+            }
+        }).resizable({
+            stop: function(event, ui) {
+                const newSize = { width: ui.size.width, height: ui.size.height };
+            }
+        });
 
         document.getElementById(`delete-${note.id}`).addEventListener('click', () => {
             deleteNote(note.id);
@@ -351,6 +369,54 @@ function displayNotes(notes) {
         });
     });
 }
+/*
+function saveNotePosition(noteId, x, y) {
+    fetch(`https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards/${boardId}/notes/${noteId}/position`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ x, y }),
+    })
+    .then(response => {
+        console.log('Response:', response);
+        if (!response.ok) {
+            return response.text().then(err => {
+                throw new Error(err || 'Failed to save note position');
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Note position saved successfully:', data);
+    })
+    .catch(error => {
+        console.error('Error saving note position:', error.message);
+        document.getElementById('message').innerText = 'Error saving note position: ' + error.message;
+    });
+} 
+
+async function saveNoteSize(noteId, size) {
+    try {
+        const response = await fetch(`https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards/${boardId}/notes/${noteId}/size`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify(size),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to save note size');
+        }
+
+        console.log('Note size saved successfully');
+    } catch (error) {
+        console.error('Error saving note size:', error.message);
+    }
+} */
 
 document.getElementById('create-note').addEventListener('click', async () => {
     const content = " "
@@ -361,7 +427,7 @@ document.getElementById('create-note').addEventListener('click', async () => {
     }
 
     try {
-        const response = await fetch(`http://localhost:8080/boards/${boardId}/notes`, {
+        const response = await fetch(`https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards/${boardId}/notes`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -390,7 +456,7 @@ async function deleteNote() {
     const noteId = noteContent.getAttribute('data-id');
 
     try {
-        const response = await fetch(`http://localhost:8080/boards/${boardId}/notes/${noteId}`, {
+        const response = await fetch(`https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards/${boardId}/notes/${noteId}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -410,9 +476,11 @@ async function deleteNote() {
 }
 */
 
+
+
 async function deleteNote(noteId) {
     try {
-        const response = await fetch(`http://localhost:8080/boards/${boardId}/notes/${noteId}`, {
+        const response = await fetch(`https://wom-projekt1-hgdyf8h2a0fshuh0.northeurope-01.azurewebsites.net/boards/${boardId}/notes/${noteId}`, {
             method: 'DELETE',
             headers: {
                 'Authorization': `Bearer ${token}`,
